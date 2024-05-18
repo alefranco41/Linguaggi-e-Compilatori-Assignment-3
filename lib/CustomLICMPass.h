@@ -7,10 +7,11 @@
 #include "llvm/Transforms/Scalar/LoopPassManager.h"
 #include "llvm/Analysis/LoopNestAnalysis.h"
 
-namespace llvm {
-  class CustomLICMPass : public PassInfoMixin<CustomLICMPass> {
-  public:
-      PreservedAnalyses run(Loop &L, LoopAnalysisManager &LAM, LoopStandardAnalysisResults &LAR, LPMUpdater &LU);
-  };// namespace llvm // namespace llvm
-}
+using namespace llvm;
+
+class CustomLICMPass : public PassInfoMixin<CustomLICMPass> {
+public:
+    PreservedAnalyses run(Loop &L, LoopAnalysisManager &LAM, LoopStandardAnalysisResults &LAR, LPMUpdater &LU);
+};
+
 #endif /* LLVM_TRANSFORMS_CUSTOMLICMPASS_CUSTOMLICMPASS_H */
