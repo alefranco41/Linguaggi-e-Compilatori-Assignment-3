@@ -1,0 +1,157 @@
+opt -S -passes=mem2reg test/loop.ll -o test/loop_mem2reg.ll
+opt -S -passes=CustomLICM test/loop_mem2reg.ll -o=test/loop_optimized.ll
+Loop Found!
+Preheader found
+Checking if the instruction:   br label %3 is Loop Invariant
+the instruction:   br label %3 is a PHI node, returning false
+Checking if the instruction:   %.05 = phi i32 [ 0, %2 ], [ %19, %15 ] is Loop Invariant
+the instruction:   %.05 = phi i32 [ 0, %2 ], [ %19, %15 ] is a PHI node, returning false
+Checking if the instruction:   %.04 = phi i32 [ 0, %2 ], [ %17, %15 ] is Loop Invariant
+the instruction:   %.04 = phi i32 [ 0, %2 ], [ %17, %15 ] is a PHI node, returning false
+Checking if the instruction:   %.03 = phi i32 [ 0, %2 ], [ %16, %15 ] is Loop Invariant
+the instruction:   %.03 = phi i32 [ 0, %2 ], [ %16, %15 ] is a PHI node, returning false
+Checking if the instruction:   %.01 = phi i32 [ 9, %2 ], [ %.1, %15 ] is Loop Invariant
+the instruction:   %.01 = phi i32 [ 9, %2 ], [ %.1, %15 ] is a PHI node, returning false
+Checking if the instruction:   %.0 = phi i32 [ %1, %2 ], [ %4, %15 ] is Loop Invariant
+the instruction:   %.0 = phi i32 [ %1, %2 ], [ %4, %15 ] is a PHI node, returning false
+Checking if the instruction:   %4 = add nsw i32 %.0, 1 is Loop Invariant
+Iterating through the operators of   %4 = add nsw i32 %.0, 1:'
+Checking operand:   %.0 = phi i32 [ %1, %2 ], [ %4, %15 ]:'
+Operand:   %.0 = phi i32 [ %1, %2 ], [ %4, %15 ] is an Instruction
+Operand:   %.0 = phi i32 [ %1, %2 ], [ %4, %15 ] is a PHI node, returning false 
+Checking if the instruction:   %5 = add nsw i32 %0, 3 is Loop Invariant
+Iterating through the operators of   %5 = add nsw i32 %0, 3:'
+Checking operand: i32 %0:'
+Checking operand: i32 3:'
+The instruction
+  %5 = add nsw i32 %0, 3 is Loop Invariant, returning true
+Checking if the instruction:   %6 = add nsw i32 %0, 7 is Loop Invariant
+Iterating through the operators of   %6 = add nsw i32 %0, 7:'
+Checking operand: i32 %0:'
+Checking operand: i32 7:'
+The instruction
+  %6 = add nsw i32 %0, 7 is Loop Invariant, returning true
+Checking if the instruction:   %7 = icmp slt i32 %4, 5 is Loop Invariant
+Iterating through the operators of   %7 = icmp slt i32 %4, 5:'
+Checking operand:   %4 = add nsw i32 %.0, 1:'
+Operand:   %4 = add nsw i32 %.0, 1 is an Instruction
+The loop contains the operand:   %4 = add nsw i32 %.0, 1
+The instruction:   %7 = icmp slt i32 %4, 5is not Loop Invariant, operand:   %4 = add nsw i32 %.0, 1 is within the loop and not invariant, returning false.
+Checking if the instruction:   br i1 %7, label %8, label %11 is Loop Invariant
+the instruction:   br i1 %7, label %8, label %11 is a PHI node, returning false
+Checking if the instruction:   %12 = sub nsw i32 %.01, 1 is Loop Invariant
+Iterating through the operators of   %12 = sub nsw i32 %.01, 1:'
+Checking operand:   %.01 = phi i32 [ 9, %2 ], [ %.1, %15 ]:'
+Operand:   %.01 = phi i32 [ 9, %2 ], [ %.1, %15 ] is an Instruction
+Operand:   %.01 = phi i32 [ 9, %2 ], [ %.1, %15 ] is a PHI node, returning false 
+Checking if the instruction:   %13 = add nsw i32 %0, 4 is Loop Invariant
+Iterating through the operators of   %13 = add nsw i32 %0, 4:'
+Checking operand: i32 %0:'
+Checking operand: i32 4:'
+The instruction
+  %13 = add nsw i32 %0, 4 is Loop Invariant, returning true
+Checking if the instruction:   %14 = icmp sge i32 %4, 10 is Loop Invariant
+Iterating through the operators of   %14 = icmp sge i32 %4, 10:'
+Checking operand:   %4 = add nsw i32 %.0, 1:'
+Operand:   %4 = add nsw i32 %.0, 1 is an Instruction
+The loop contains the operand:   %4 = add nsw i32 %.0, 1
+The instruction:   %14 = icmp sge i32 %4, 10is not Loop Invariant, operand:   %4 = add nsw i32 %.0, 1 is within the loop and not invariant, returning false.
+Checking if the instruction:   br i1 %14, label %20, label %15 is Loop Invariant
+the instruction:   br i1 %14, label %20, label %15 is a PHI node, returning false
+Checking if the instruction:   %.lcssa4 = phi i32 [ %12, %11 ] is Loop Invariant
+the instruction:   %.lcssa4 = phi i32 [ %12, %11 ] is a PHI node, returning false
+Checking if the instruction:   %.lcssa3 = phi i32 [ %13, %11 ] is Loop Invariant
+the instruction:   %.lcssa3 = phi i32 [ %13, %11 ] is a PHI node, returning false
+Checking if the instruction:   %.05.lcssa = phi i32 [ %.05, %11 ] is Loop Invariant
+the instruction:   %.05.lcssa = phi i32 [ %.05, %11 ] is a PHI node, returning false
+Checking if the instruction:   %.04.lcssa = phi i32 [ %.04, %11 ] is Loop Invariant
+the instruction:   %.04.lcssa = phi i32 [ %.04, %11 ] is a PHI node, returning false
+Checking if the instruction:   %.03.lcssa = phi i32 [ %.03, %11 ] is Loop Invariant
+the instruction:   %.03.lcssa = phi i32 [ %.03, %11 ] is a PHI node, returning false
+Checking if the instruction:   %.lcssa2 = phi i32 [ %4, %11 ] is Loop Invariant
+the instruction:   %.lcssa2 = phi i32 [ %4, %11 ] is a PHI node, returning false
+Checking if the instruction:   %.lcssa1 = phi i32 [ %5, %11 ] is Loop Invariant
+the instruction:   %.lcssa1 = phi i32 [ %5, %11 ] is a PHI node, returning false
+Checking if the instruction:   %.lcssa = phi i32 [ %6, %11 ] is Loop Invariant
+the instruction:   %.lcssa = phi i32 [ %6, %11 ] is a PHI node, returning false
+Checking if the instruction:   %21 = call i32 (ptr, ...) @printf(ptr @.str, i32 %.lcssa4, i32 %.lcssa3, i32 %.03.lcssa, i32 %.04.lcssa, i32 %.lcssa, i32 %.05.lcssa, i32 %.lcssa1, i32 %.lcssa2) is Loop Invariant
+Iterating through the operators of   %21 = call i32 (ptr, ...) @printf(ptr @.str, i32 %.lcssa4, i32 %.lcssa3, i32 %.03.lcssa, i32 %.04.lcssa, i32 %.lcssa, i32 %.05.lcssa, i32 %.lcssa1, i32 %.lcssa2):'
+Checking operand: @.str = private constant [25 x i8] c"%d,%d,%d,%d,%d,%d,%d,%d\0A\00", align 1:'
+Checking operand:   %.lcssa4 = phi i32 [ %12, %11 ]:'
+Operand:   %.lcssa4 = phi i32 [ %12, %11 ] is an Instruction
+Operand:   %.lcssa4 = phi i32 [ %12, %11 ] is a PHI node, returning false 
+Checking if the instruction:   ret void is Loop Invariant
+Iterating through the operators of   ret void:'
+The instruction
+  ret void is Loop Invariant, returning true
+Checking if the instruction:   %.02 = phi i32 [ %10, %8 ], [ %13, %11 ] is Loop Invariant
+the instruction:   %.02 = phi i32 [ %10, %8 ], [ %13, %11 ] is a PHI node, returning false
+Checking if the instruction:   %.1 = phi i32 [ %9, %8 ], [ %12, %11 ] is Loop Invariant
+the instruction:   %.1 = phi i32 [ %9, %8 ], [ %12, %11 ] is a PHI node, returning false
+Checking if the instruction:   %16 = add nsw i32 %5, 7 is Loop Invariant
+Iterating through the operators of   %16 = add nsw i32 %5, 7:'
+Checking operand:   %5 = add nsw i32 %0, 3:'
+Operand:   %5 = add nsw i32 %0, 3 is an Instruction
+The loop contains the operand:   %5 = add nsw i32 %0, 3
+Checking operand: i32 7:'
+The instruction
+  %16 = add nsw i32 %5, 7 is Loop Invariant, returning true
+Checking if the instruction:   %17 = add nsw i32 %.02, 2 is Loop Invariant
+Iterating through the operators of   %17 = add nsw i32 %.02, 2:'
+Checking operand:   %.02 = phi i32 [ %10, %8 ], [ %13, %11 ]:'
+Operand:   %.02 = phi i32 [ %10, %8 ], [ %13, %11 ] is an Instruction
+Operand:   %.02 = phi i32 [ %10, %8 ], [ %13, %11 ] is a PHI node, returning false 
+Checking if the instruction:   %18 = add nsw i32 %0, 7 is Loop Invariant
+Iterating through the operators of   %18 = add nsw i32 %0, 7:'
+Checking operand: i32 %0:'
+Checking operand: i32 7:'
+The instruction
+  %18 = add nsw i32 %0, 7 is Loop Invariant, returning true
+Checking if the instruction:   %19 = add nsw i32 %6, 5 is Loop Invariant
+Iterating through the operators of   %19 = add nsw i32 %6, 5:'
+Checking operand:   %6 = add nsw i32 %0, 7:'
+Operand:   %6 = add nsw i32 %0, 7 is an Instruction
+The loop contains the operand:   %6 = add nsw i32 %0, 7
+Checking operand: i32 5:'
+The instruction
+  %19 = add nsw i32 %6, 5 is Loop Invariant, returning true
+Checking if the instruction:   br label %3 is Loop Invariant
+the instruction:   br label %3 is a PHI node, returning false
+Checking if the instruction:   %9 = add nsw i32 %.01, 2 is Loop Invariant
+Iterating through the operators of   %9 = add nsw i32 %.01, 2:'
+Checking operand:   %.01 = phi i32 [ 9, %2 ], [ %.1, %15 ]:'
+Operand:   %.01 = phi i32 [ 9, %2 ], [ %.1, %15 ] is an Instruction
+Operand:   %.01 = phi i32 [ 9, %2 ], [ %.1, %15 ] is a PHI node, returning false 
+Checking if the instruction:   %10 = add nsw i32 %0, 3 is Loop Invariant
+Iterating through the operators of   %10 = add nsw i32 %0, 3:'
+Checking operand: i32 %0:'
+Checking operand: i32 3:'
+The instruction
+  %10 = add nsw i32 %0, 3 is Loop Invariant, returning true
+Checking if the instruction:   br label %15 is Loop Invariant
+the instruction:   br label %15 is a PHI node, returning false
+Found Loop Invariant instructions
+Computed the loop exit blocks
+The Loop Invariant instruction
+  %5 = add nsw i32 %0, 3 dominates all loop exit blocks. 
+The Loop Invariant instruction
+  %3 = add nsw i32 %0, 3 has been moved inside the preheader. 
+The Loop Invariant instruction
+  %6 = add nsw i32 %0, 7 dominates all loop exit blocks. 
+The Loop Invariant instruction
+  %4 = add nsw i32 %0, 7 has been moved inside the preheader. 
+The Loop Invariant instruction
+  %13 = add nsw i32 %0, 4 dominates all loop exit blocks. 
+The Loop Invariant instruction
+  %5 = add nsw i32 %0, 4 has been moved inside the preheader. 
+The Loop Invariant instruction
+  ret void does NOT dominate all loop exit blocks 
+The Loop Invariant instruction
+  %16 = add nsw i32 %3, 7 does NOT dominate all loop exit blocks 
+The Loop Invariant instruction
+  %18 = add nsw i32 %0, 7 does NOT dominate all loop exit blocks 
+The Loop Invariant instruction
+  %19 = add nsw i32 %4, 5 does NOT dominate all loop exit blocks 
+The Loop Invariant instruction
+  %11 = add nsw i32 %0, 3 does NOT dominate all loop exit blocks 
+Returning 1

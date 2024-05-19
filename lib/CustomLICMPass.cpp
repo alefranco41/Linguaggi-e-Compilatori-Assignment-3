@@ -1,6 +1,6 @@
+//#include <unordered_map>
+//#include <unordered_set>
 #include <iterator>
-#include <map>
-#include <set>
 #include "llvm/Transforms/Utils/CustomLICMPass.h"
 #include "llvm/Pass.h"
 #include "llvm/IR/Function.h"
@@ -13,15 +13,14 @@
 #include "llvm/Analysis/LoopNestAnalysis.h"
 #include "llvm/Analysis/LoopPass.h"
 #include "llvm/CodeGen/ReachingDefAnalysis.h"
-#include <unordered_map>
-#include <unordered_set>
+
 
 
 using namespace llvm;
 
 namespace {
 
-using DefinitionSet = std::unordered_set<Instruction*>;
+/*using DefinitionSet = std::unordered_set<Instruction*>;
 using ReachingDefsMap = std::unordered_map<Instruction*, DefinitionSet>;
 
 class ReachingDefinitions {
@@ -90,10 +89,10 @@ public:
         outs() << "Returning Reaching Definitions\n";
         return reachingDefs;
     }
-};
+};*/
 
 
-bool isAddOrSubInstruction(Instruction* inst) {
+/*bool isAddOrSubInstruction(Instruction* inst) {
     if (BinaryOperator* binOp = dyn_cast<BinaryOperator>(inst)) {
         if (binOp->getNumOperands() != 2) {
             return false; // Non è una somma o sottrazione
@@ -103,90 +102,162 @@ bool isAddOrSubInstruction(Instruction* inst) {
         return binOp->getOpcode() == Instruction::Add || binOp->getOpcode() == Instruction::Sub;
     }
     return false; // Non è un'istruzione binaria
-}
+}*/
 
 
-bool isInvariant(Loop* L, std::vector<Instruction*> invStmts, Instruction* inst, ReachingDefsMap &reachingDefs) {
+bool isInvariant(Loop* L, std::vector<Instruction*> invStmts, Instruction* inst/*, ReachingDefsMap &reachingDefs*/) {
     outs() << "Checking if the instruction: ";
     inst->print(outs());
     outs() <<" is Loop Invariant\n";
-
-    if (!isSafeToSpeculativelyExecute(inst)) {
+    
+    if (isa<PHINode>(inst) || isa<BranchInst>(inst)) {
+        outs() << "the instruction: ";
+        inst->print(outs());
+        outs() <<" is a PHI node, returning false\n";
         return false;
     }
 
-    if (!isAddOrSubInstruction(inst)) {
-        outs() << "The instruction is not in the form 'a = b + c' or 'a = b - c'\n";
+    /*if (!isSafeToSpeculativelyExecute(inst)) {
+        outs() << "the instruction: ";
+        inst->print(outs());
+        outs() <<" is not safe to speculatively execute\n";
         return false;
-    }
+    }*/
+
+    /*if (!isAddOrSubInstruction(inst)) {
+        outs() << "the instruction: ";
+        inst->print(outs());
+        outs() <<" is not in the form 'a = b + c' or 'a = b - c'\n";
+        return false;
+    }*/
 
     
+    outs() << "Iterating through the operators of ";
+    inst->print(outs());
+    outs() <<":'\n";
 
     for (User::op_iterator OI = inst->op_begin(), OE = inst->op_end(); OI != OE; ++OI) {
         Value *op = *OI;
-        
+        outs() << "Checking operand: ";
+        op->print(outs());
+        outs() <<":'\n";
         if (Instruction* op_inst = dyn_cast<Instruction>(op)) {
-            const DefinitionSet &defs = reachingDefs[&*op_inst];
+            outs() << "Operand: ";
+            op_inst->print(outs());
+            outs() << " is an Instruction\n";
+
+            if (isa<PHINode>(op_inst)) {
+                outs() << "Operand: ";
+                op_inst->print(outs());
+                outs() << " is a PHI node, returning false \n";
+                return false;
+            }
             if (L->contains(op_inst)) {
-                // Check if op_inst is loop invariant
+                outs() << "The loop contains the operand: ";
+                op_inst->print(outs());
+                outs() << "\n";
                 if (std::find(invStmts.begin(), invStmts.end(), op_inst) == invStmts.end()) {
-                    outs() << "The instruction is not Loop Invariant: operand ";
+                    outs() << "The instruction: ";
+                    inst->print(outs());
+                    outs() << "is not Loop Invariant, operand: ";
                     op_inst->print(outs());
-                    outs() << " is within the loop and not invariant\n";
+                    outs() << " is within the loop and not invariant, returning false.\n";
+
                     return false;
                 }
-            } else {
-                // Operand defined outside the loop
+            } /*else {
+                outs() << "The loop does not contain the operand: ";
+                op_inst->print(outs());
+                outs() << "\n";
+
                 bool definedOutsideLoop = true;
                 bool hasSingleDefinition = true;
-                
+                const DefinitionSet &defs = reachingDefs[&*op_inst];
+
+                outs() << "Iterating through the reaching definitions of the operand: ";
+                op_inst->print(outs());
+                outs() << "\n";
+
+                outs() << "The operand : ";
+                op_inst->print(outs());
+                outs() << "has a total of "<<defs.size()<<" reaching definitions\n";
+
+                int count = 1;
                 for (Instruction *defInst : defs) {
-                    if (L->contains(defInst)) {
+                    outs() << "Reaching definition #"<<count<<": ";
+                    count++;
+                    defInst->print(outs());
+                    outs() << "\n";
+
+                    if (definedOutsideLoop == true && L->contains(defInst)) {
+                        outs() << "The loop contains the reaching definition: ";
+                        defInst->print(outs());
+                        outs() << "\n";
+
                         definedOutsideLoop = false;
-                        outs() << " Not all the reaching definitions of the instruction are outside the loop.\n";
-                        if (defs.size() > 1 || 
-                            std::find(invStmts.begin(), invStmts.end(), defInst) == invStmts.end()) {
-                            outs() << "The operand either has multiple reaching definitions, or it has only one that isn't loop-invariant, or both. \n";
+                        outs() << "Not all the reaching definitions of the operand are outside the loop.\n";
+                        outs() << "definedOutsideLoop = false.\n";
+                    }
+
+                    outs() << "The loop does not contain the reaching definition: ";
+                    defInst->print(outs());
+                    outs() << "\n";
+                    outs() << "definedOutsideLoop = true.\n";
+
+                    if (hasSingleDefinition == true && (defs.size() > 1 || std::find(invStmts.begin(), invStmts.end(), defInst) == invStmts.end())) {
+                            outs() << "The operand ";
+                            op_inst->print(outs());
+                            outs() <<" either has multiple reaching definitions, or it has only one that isn't loop-invariant, or both. \n";
                             hasSingleDefinition = false;
-                        }
+                            outs() << "hasSingleDefinition = false.\n";
+                    }
+
+                    if (!definedOutsideLoop && !hasSingleDefinition) {
+                        outs() << "definedOutsideLoop = false, hasSingleDefinition = false.\n";
+                        outs() << "The instruction is not Loop Invariant: operand ";
+                        op_inst->print(outs());
+                        outs() << " has multiple definitions or is not invariant\n";
+                        outs() << "returning false.\n";
+                    return false;
+
                     }
                 }
                 
-            
-
-                if (!definedOutsideLoop && !hasSingleDefinition) {
-                    outs() << "The instruction is not Loop Invariant: operand ";
-                    op_inst->print(outs());
-                    outs() << " has multiple definitions or is not invariant\n";
-                    return false;
-                }
-            }
-        } else if (!isa<Constant>(op)) {
+            }*/
+        } /*else if (!isa<Constant>(op)) {
             outs() << "The instruction is not Loop Invariant: operand ";
             op->print(outs());
             outs() << " is not a constant or invariant instruction\n";
             return false;
-        }
+        }*/
     }
 
-    outs() << "The instruction is Loop Invariant \n";
+    outs() << "The instruction\n";
+    inst->print(outs());
+    outs() <<" is Loop Invariant, returning true\n";
     return true;
 }
 
 
 bool runOnLoop(Loop *L, LoopInfo &LI, DominatorTree &DT) {
 			bool modified = false;
+
+            if (!L->isLoopSimplifyForm()) {
+                outs() << "Loop is not in simplified form\n";
+                return modified;
+            }
             
-            ReachingDefinitions reachingDefsAnalysis;
+            
+            /*ReachingDefinitions reachingDefsAnalysis;
             Function &F = *L->getHeader()->getParent();
             ReachingDefsMap reachingDefs = reachingDefsAnalysis.computeReachingDefinitions(F);
-            outs() << "Computed Reaching Definitions \n";
+            outs() << "Computed Reaching Definitions \n";*/
 
-			// From the LLVM documentation, we know that LoopPass calls runOnLoop on the loops in the loop nest order, so the outermost loop is processed last.
-			// So we don't need to take care of LICM "bubbling" all the way through.
+			
 
 			// Ignore loops without a pre-header
 			BasicBlock* preheader = L->getLoopPreheader();
+
 			if (!preheader) {
                 outs() << "Preheader not found\n";
 				return false;
@@ -205,7 +276,6 @@ bool runOnLoop(Loop *L, LoopInfo &LI, DominatorTree &DT) {
 				BasicBlock* b = n->getBlock();
 				worklist.pop_back();
 
-				// Skip this block if it is part of a subloop (thus, already processed)
 				/*if (LI.getLoopFor(b) != L) {
                     outs() << "Skipping this block because it is part of a subloop \n";
 					return false;
@@ -214,7 +284,7 @@ bool runOnLoop(Loop *L, LoopInfo &LI, DominatorTree &DT) {
 				// Iterate through all the intructions.
 				for (BasicBlock::iterator II = b->begin(), IE = b->end(); II != IE; ++II) {
 					Instruction* inst = &(*II);
-					bool inv = isInvariant(L, invStmts, inst, reachingDefs);
+					bool inv = isInvariant(L, invStmts, inst/*, reachingDefs*/);
 					if (inv) {
 						invStmts.push_back(inst);
 					}
@@ -226,9 +296,6 @@ bool runOnLoop(Loop *L, LoopInfo &LI, DominatorTree &DT) {
 			}
 
             outs() << "Found Loop Invariant instructions\n";
-			// Conditions for hoisting out of the loop
-			// In SSA, everything is assigned only once, and must be done before all its uses. So only need to check if all loop exits are dominated.
-			// Find all loop exits
 
 			std::vector<BasicBlock*> exitblocks;
 			std::vector<BasicBlock*> blocks = L->getBlocks();
@@ -247,14 +314,14 @@ bool runOnLoop(Loop *L, LoopInfo &LI, DominatorTree &DT) {
 			// Check if instruction can be moved, and do code motion in the order in which invStmts were added (while maintaining dependencies)
 			for (size_t j = 0; j < invStmts.size(); ++j) {
 				Instruction* inst = invStmts[j];
-				
-
 				bool all_dominate = true;
   				// Check if it dominates all loop exits
                 BasicBlock* b = inst->getParent();
 				for(size_t i=0; i<exitblocks.size(); ++i) {
                     if (!DT.dominates(b, exitblocks[i])) {
-                        outs() << "The instruction does NOT dominate all loop exit blocks\n";
+                        outs() << "The Loop Invariant instruction\n";
+                        inst->print(outs());
+                        outs() <<" does NOT dominate all loop exit blocks \n";
                         all_dominate = false;
                         break;
                     }
@@ -262,12 +329,18 @@ bool runOnLoop(Loop *L, LoopInfo &LI, DominatorTree &DT) {
 				
 
 				if (all_dominate) {
-                    outs() << "The instruction dominates all loop exit blocks\n";
+                    outs() << "The Loop Invariant instruction\n";
+                    inst->print(outs());
+                    outs() <<" dominates all loop exit blocks. \n";
+
 					Instruction* end = &(preheader->back());
 					inst->moveBefore(end);
 					if (!modified) {
 						modified = true;
 					}
+                    outs() << "The Loop Invariant instruction\n";
+                    inst->print(outs());
+                    outs() <<" has been moved inside the preheader. \n";
 				}
 			}
 
