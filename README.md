@@ -10,7 +10,3 @@ a) Installazione:
 
 b) Test:
 è possibile testare il funzionamento del passo tramite il comando "make"
-altrimenti è possibile inserire manualmente i seguenti comandi
-
-clang -O2 -S -emit-llvm -c test/test.c -o test/test.ll
-opt -S -passes=LocalOpts test/test.ll -o=test/test_optimized.ll
