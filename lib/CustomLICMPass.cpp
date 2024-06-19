@@ -207,7 +207,7 @@ bool runOnLoop(Loop *L, LoopInfo &LI, DominatorTree &DT) {
     
     SmallVector<BasicBlock*, 4> exitBlocks;
     L->getExitBlocks(exitBlocks);
-    
+    int n_moved = 0;
 
     // Check if instruction can be moved, and do code motion in the order in which invStmts were added (while maintaining dependencies)
     std::function<bool(Instruction*)> moveInstruction = [&](Instruction* inst) -> bool {
@@ -284,6 +284,7 @@ bool runOnLoop(Loop *L, LoopInfo &LI, DominatorTree &DT) {
                 modified = true;
             }
             outs() <<"The instruction has been moved inside the preheader. \n\n";
+            n_moved++;
             return true;
         }
 
@@ -295,7 +296,7 @@ bool runOnLoop(Loop *L, LoopInfo &LI, DominatorTree &DT) {
         moveInstruction(inst);
     }
 
-    outs() << "Returning "<<modified<<"\n";
+    outs() << "Moved "<< n_moved <<" instruction(s) inside the preheader \n";
     return modified;
 }
 

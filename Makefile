@@ -1,27 +1,45 @@
 # Definire i file di input e output
-C_FILE = test/loop.c
-IR_FILE = test/loop.ll
-BC_FILE = test/loop.bc
-MEM2REG_IR_FILE = test/loop_mem2reg.ll
-MEM2REG_BC_FILE = test/loop_mem2reg.bc
-OPTIMIZED_IR_FILE = test/loop_optimized.ll
+C_FILES := $(wildcard test/*.c)
+IR_FILES := $(patsubst test/%.c, test/%.ll, $(C_FILES))
+BC_FILES := $(patsubst test/%.c, test/%.bc, $(C_FILES))
+MEM2REG_IR_FILES := $(patsubst test/%.bc, test/%_mem2reg.ll, $(BC_FILES))
+MEM2REG_BC_FILES := $(patsubst test/%.bc, test/%_mem2reg.bc, $(BC_FILES))
+OPTIMIZED_IR_FILES := $(patsubst test/%.bc, test/%_optimized.ll, $(BC_FILES))
 
 # Target principale
 all: optimize
 
-# Generare il codice intermedio IR senza ottimizzazioni
-generate_ir: $(C_FILE) 
-	clang -O0 -Xclang -disable-O0-optnone -fno-discard-value-names -emit-llvm -c $(C_FILE) -o $(BC_FILE)
-	llvm-dis $(BC_FILE) -o $(IR_FILE)
+# Regola generica per generare il codice intermedio IR da tutti i file .c
+generate_ir: $(IR_FILES)
 
-# Eseguire il passo mem2reg
-mem2reg: generate_ir
-	opt -passes=mem2reg $(BC_FILE) -o $(MEM2REG_BC_FILE)
-	llvm-dis $(MEM2REG_BC_FILE) -o $(MEM2REG_IR_FILE)
+# Regola generica per generare i bytecode LLVM da tutti i file .c
+generate_bc: $(BC_FILES)
 
-# Applicare il passo di ottimizzazione CustomLICM
-optimize: mem2reg
-	opt -S -passes=CustomLICM $(MEM2REG_IR_FILE) -o=$(OPTIMIZED_IR_FILE)
+# Regola generica per eseguire il passo mem2reg su tutti i bytecode LLVM
+mem2reg: generate_bc $(MEM2REG_BC_FILES)
+
+# Regola generica per applicare il passo di ottimizzazione CustomLICM su tutti i file IR mem2reg
+optimize: mem2reg $(OPTIMIZED_IR_FILES)
+
+# Regola per generare il codice intermedio IR da un file .c
+test/%.ll: test/%.c
+	clang -O0 -Xclang -disable-O0-optnone -fno-discard-value-names -emit-llvm -c $< -o $(patsubst %.ll, %.bc, $@)
+	llvm-dis $(patsubst %.ll, %.bc, $@) -o $@
+
+# Regola per generare i bytecode LLVM da un file .c
+test/%.bc: test/%.c
+	clang -O0 -Xclang -disable-O0-optnone -fno-discard-value-names -emit-llvm -c $< -o $@
+
+# Regola per eseguire il passo mem2reg su un file .bc
+test/%_mem2reg.bc: test/%.bc
+	opt -passes=mem2reg $< -o $@
+
+test/%_mem2reg.ll: test/%_mem2reg.bc
+	llvm-dis $< -o $@
+
+# Regola per applicare il passo di ottimizzazione CustomLICM su un file .ll
+test/%_optimized.ll: test/%_mem2reg.ll
+	opt -S -passes=CustomLICM $< -o $@
 
 # Pulizia dei file generati
 .PHONY: clean
