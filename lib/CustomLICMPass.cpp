@@ -211,6 +211,10 @@ bool runOnLoop(Loop *L, LoopInfo &LI, DominatorTree &DT) {
 
     // Check if instruction can be moved, and do code motion in the order in which invStmts were added (while maintaining dependencies)
     std::function<bool(Instruction*)> moveInstruction = [&](Instruction* inst) -> bool {
+        if(!L->contains(inst)){
+            return false;
+        }
+
         if (movedStmts.count(inst)) {
             return true;
         }

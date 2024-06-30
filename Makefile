@@ -6,6 +6,8 @@ MEM2REG_IR_FILES := $(patsubst test/%.bc, test/%_mem2reg.ll, $(BC_FILES))
 MEM2REG_BC_FILES := $(patsubst test/%.bc, test/%_mem2reg.bc, $(BC_FILES))
 OPTIMIZED_IR_FILES := $(patsubst test/%.bc, test/%_optimized.ll, $(BC_FILES))
 
+.PRECIOUS: $(MEM2REG_IR_FILES) $(MEM2REG_BC_FILES)
+
 # Target principale
 all: optimize
 
@@ -39,7 +41,7 @@ test/%_mem2reg.ll: test/%_mem2reg.bc
 
 # Regola per applicare il passo di ottimizzazione CustomLICM su un file .ll
 test/%_optimized.ll: test/%_mem2reg.ll
-	opt -S -passes=CustomLICM $< -o $@
+	opt -S -passes=CustomLICM -print-after=CustomLICM $< -o $@
 
 # Pulizia dei file generati
 .PHONY: clean
