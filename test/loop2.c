@@ -2,15 +2,13 @@
 
 void foo(int a, int b) {
     int c = a * 2;
-    if(c > 0){
-        body:
-        a++;
+    body:  
         b = c + 5;
-        if(a > 10){
+        if(a > 100){
             goto exit;
         }
-        goto body;
-    }   
+        a++;
+        goto body; 
     
     exit:
         printf("%d%d\n",a,b);

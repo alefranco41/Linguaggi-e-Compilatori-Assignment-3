@@ -41,7 +41,7 @@ test/%_mem2reg.ll: test/%_mem2reg.bc
 
 # Regola per applicare il passo di ottimizzazione CustomLICM su un file .ll
 test/%_optimized.ll: test/%_mem2reg.ll
-	opt -S -passes=CustomLICM -print-after=CustomLICM $< -o $@
+	opt -S -passes=CustomLICM $< -o $@
 
 # Pulizia dei file generati
 .PHONY: clean
