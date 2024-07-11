@@ -1,5 +1,4 @@
 #include <stdio.h>
-
 void foo(int a, int b) {
     int c = a * 2;
     body:  

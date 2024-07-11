@@ -65,7 +65,7 @@ bool dominatesAllUsesInLoop(DominatorTree &DT, Loop* L, Instruction* inst) {
     for (auto *BB : L->getBlocks()) {
         for (auto &I : *BB) {
             for (Use &U : I.operands()) {
-                if (U.get() == inst && !DT.dominates(inst, &I)) {
+                if (U.get() == inst && !DT.dominates(inst->getParent(), BB)) {
                     return false;
                 }
             }
